@@ -1,0 +1,283 @@
+openapi: 3.0.3
+info:
+  title: Online Dating App API
+  description: API for an online dating app
+  version: 1.0.0
+servers:
+- url: http://localhost:5000/api/v1
+paths:
+  /users:
+    get:
+      summary: Get all users
+      operationId: users_get
+      responses:
+        "200":
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+                x-content-type: application/json
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+    post:
+      summary: Create a new user
+      operationId: users_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewUser'
+        required: true
+      responses:
+        "201":
+          description: The created user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+  /users/{id}:
+    get:
+      summary: Get a user by ID
+      operationId: users_id_get
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the user to retrieve
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: The requested user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+    put:
+      summary: Update a user by ID
+      operationId: users_id_put
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the user to update
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewUser'
+        required: true
+      responses:
+        "200":
+          description: The updated user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+  /users/{id}/likes:
+    get:
+      summary: Get all likes for a user
+      operationId: users_id_likes_get
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the user to retrieve likes for
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: A list of likes for the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Like'
+                x-content-type: application/json
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+    post:
+      summary: Add a like for a user
+      operationId: users_id_likes_post
+      parameters:
+      - name: id
+        in: path
+        description: The ID of the user to add a like for
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewLike'
+        required: true
+      responses:
+        "201":
+          description: The created like
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Like'
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+components:
+  schemas:
+    User:
+      required:
+      - age
+      - email
+      - first_name
+      - gender
+      - id
+      - last_name
+      - location
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        first_name:
+          type: string
+          example: John
+        last_name:
+          type: string
+          example: Doe
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+        gender:
+          type: string
+          example: male
+          enum:
+          - male
+          - female
+        age:
+          type: integer
+          example: 25
+        location:
+          $ref: '#/components/schemas/User_location'
+      example:
+        gender: male
+        last_name: Doe
+        location:
+          latitude: 37.7749
+          longitude: -122.4194
+        id: 1
+        first_name: John
+        email: john.doe@example.com
+        age: 25
+    NewUser:
+      required:
+      - age
+      - email
+      - first_name
+      - gender
+      - last_name
+      - location
+      type: object
+      properties:
+        first_name:
+          type: string
+          example: John
+        last_name:
+          type: string
+          example: Doe
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+        gender:
+          type: string
+          example: male
+          enum:
+          - male
+          - female
+        age:
+          type: integer
+          example: 25
+        location:
+          $ref: '#/components/schemas/User_location'
+    Like:
+      required:
+      - liked_user_id
+      - user_id
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 1
+        liked_user_id:
+          type: integer
+          example: 2
+      example:
+        liked_user_id: 2
+        user_id: 1
+    NewLike:
+      required:
+      - liked_user_id
+      - user_id
+      type: object
+      properties:
+        user_id:
+          type: integer
+          description: The ID of the user who is performing the like action
+        liked_user_id:
+          type: integer
+          description: The ID of the user being liked
+    User_location:
+      type: object
+      properties:
+        latitude:
+          type: number
+          example: 37.7749
+        longitude:
+          type: number
+          example: -122.4194
+      example:
+        latitude: 37.7749
+        longitude: -122.4194
+  responses:
+    SuccessResponse:
+      description: A successful response
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+                example: true
+  parameters:
+    UserIdParam:
+      name: user_id
+      in: path
+      description: The ID of the user
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: integer
+  requestBodies:
+    NewUserRequestBody:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NewUser'
+      required: true
+
