@@ -20,10 +20,10 @@ REQUIRES = [
 setup(
     name=NAME,
     version=VERSION,
-    description="Online Dating App API",
+    description="Dating App API",
     author_email="",
     url="",
-    keywords=["Swagger", "Online Dating App API"],
+    keywords=["Swagger", "Dating App API"],
     install_requires=REQUIRES,
     packages=find_packages(),
     package_data={'': ['swagger/swagger.yaml']},
@@ -31,6 +31,6 @@ setup(
     entry_points={
         'console_scripts': ['swagger_server=swagger_server.__main__:main']},
     long_description="""\
-    API for an online dating app
+    API for a dating app
     """
 )

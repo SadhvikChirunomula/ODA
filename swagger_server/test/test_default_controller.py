@@ -5,10 +5,10 @@ from __future__ import absolute_import
 from flask import json
 from six import BytesIO
 
-from swagger_server.models.like import Like  # noqa: E501
-from swagger_server.models.new_like import NewLike  # noqa: E501
-from swagger_server.models.new_user import NewUser  # noqa: E501
+from swagger_server.models.match import Match  # noqa: E501
+from swagger_server.models.match_input import MatchInput  # noqa: E501
 from swagger_server.models.user import User  # noqa: E501
+from swagger_server.models.user_input import UserInput  # noqa: E501
 from swagger_server.test import BaseTestCase
 
 
@@ -18,61 +18,11 @@ class TestDefaultController(BaseTestCase):
     def test_users_get(self):
         """Test case for users_get
 
-        Get all users
+        List all users
         """
         response = self.client.open(
-            '/api/v1/users',
+            '//users',
             method='GET')
-        self.assert200(response,
-                       'Response body is : ' + response.data.decode('utf-8'))
-
-    def test_users_id_get(self):
-        """Test case for users_id_get
-
-        Get a user by ID
-        """
-        response = self.client.open(
-            '/api/v1/users/{id}'.format(id=56),
-            method='GET')
-        self.assert200(response,
-                       'Response body is : ' + response.data.decode('utf-8'))
-
-    def test_users_id_likes_get(self):
-        """Test case for users_id_likes_get
-
-        Get all likes for a user
-        """
-        response = self.client.open(
-            '/api/v1/users/{id}/likes'.format(id=56),
-            method='GET')
-        self.assert200(response,
-                       'Response body is : ' + response.data.decode('utf-8'))
-
-    def test_users_id_likes_post(self):
-        """Test case for users_id_likes_post
-
-        Add a like for a user
-        """
-        body = NewLike()
-        response = self.client.open(
-            '/api/v1/users/{id}/likes'.format(id=56),
-            method='POST',
-            data=json.dumps(body),
-            content_type='application/json')
-        self.assert200(response,
-                       'Response body is : ' + response.data.decode('utf-8'))
-
-    def test_users_id_put(self):
-        """Test case for users_id_put
-
-        Update a user by ID
-        """
-        body = NewUser()
-        response = self.client.open(
-            '/api/v1/users/{id}'.format(id=56),
-            method='PUT',
-            data=json.dumps(body),
-            content_type='application/json')
         self.assert200(response,
                        'Response body is : ' + response.data.decode('utf-8'))
 
@@ -81,10 +31,60 @@ class TestDefaultController(BaseTestCase):
 
         Create a new user
         """
-        body = NewUser()
+        body = UserInput()
         response = self.client.open(
-            '/api/v1/users',
+            '//users',
             method='POST',
+            data=json.dumps(body),
+            content_type='application/json')
+        self.assert200(response,
+                       'Response body is : ' + response.data.decode('utf-8'))
+
+    def test_users_user_id_get(self):
+        """Test case for users_user_id_get
+
+        Retrieve a user by ID
+        """
+        response = self.client.open(
+            '//users/{user_id}'.format(user_id=789),
+            method='GET')
+        self.assert200(response,
+                       'Response body is : ' + response.data.decode('utf-8'))
+
+    def test_users_user_id_matches_get(self):
+        """Test case for users_user_id_matches_get
+
+        Retrieve a user's matches
+        """
+        response = self.client.open(
+            '//users/{user_id}/matches'.format(user_id=789),
+            method='GET')
+        self.assert200(response,
+                       'Response body is : ' + response.data.decode('utf-8'))
+
+    def test_users_user_id_matches_post(self):
+        """Test case for users_user_id_matches_post
+
+        Create a new match
+        """
+        body = MatchInput()
+        response = self.client.open(
+            '//users/{user_id}/matches'.format(user_id=789),
+            method='POST',
+            data=json.dumps(body),
+            content_type='application/json')
+        self.assert200(response,
+                       'Response body is : ' + response.data.decode('utf-8'))
+
+    def test_users_user_id_put(self):
+        """Test case for users_user_id_put
+
+        Update a user
+        """
+        body = UserInput()
+        response = self.client.open(
+            '//users/{user_id}'.format(user_id=789),
+            method='PUT',
             data=json.dumps(body),
             content_type='application/json')
         self.assert200(response,

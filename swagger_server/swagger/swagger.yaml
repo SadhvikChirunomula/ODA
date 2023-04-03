@@ -1,18 +1,20 @@
-openapi: 3.0.3
+openapi: 3.0.0
 info:
-  title: Online Dating App API
-  description: API for an online dating app
-  version: 1.0.0
+  title: Dating App API
+  description: API for a dating app
+  version: "1.0"
 servers:
-- url: http://localhost:5000/api/v1
+- url: http://localhost:5000/
+  description: Local development server
 paths:
   /users:
     get:
-      summary: Get all users
+      summary: List all users
+      description: Retrieve a list of all users in the database.
       operationId: users_get
       responses:
         "200":
-          description: A list of users
+          description: List of users
           content:
             application/json:
               schema:
@@ -23,261 +25,261 @@ paths:
       x-openapi-router-controller: swagger_server.controllers.default_controller
     post:
       summary: Create a new user
+      description: Create a new user with the given user data.
       operationId: users_post
       requestBody:
+        description: User data to be created.
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NewUser'
+              $ref: '#/components/schemas/UserInput'
         required: true
       responses:
         "201":
-          description: The created user
+          description: Created user
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+        "400":
+          description: Invalid input
+        "409":
+          description: User already exists
       x-openapi-router-controller: swagger_server.controllers.default_controller
-  /users/{id}:
+  /users/{user_id}:
     get:
-      summary: Get a user by ID
-      operationId: users_id_get
+      summary: Retrieve a user by ID
+      description: Retrieve a user with the given user ID.
+      operationId: users_user_id_get
       parameters:
-      - name: id
+      - name: user_id
         in: path
-        description: The ID of the user to retrieve
+        description: ID of user to retrieve
         required: true
         style: simple
         explode: false
         schema:
           type: integer
+          format: int64
       responses:
         "200":
-          description: The requested user
+          description: Retrieved user
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+        "404":
+          description: User not found
       x-openapi-router-controller: swagger_server.controllers.default_controller
     put:
-      summary: Update a user by ID
-      operationId: users_id_put
+      summary: Update a user
+      description: Update a user with the given user ID and data.
+      operationId: users_user_id_put
       parameters:
-      - name: id
+      - name: user_id
         in: path
-        description: The ID of the user to update
+        description: ID of user to update
         required: true
         style: simple
         explode: false
         schema:
           type: integer
+          format: int64
       requestBody:
+        description: User data to be updated.
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NewUser'
+              $ref: '#/components/schemas/UserInput'
         required: true
       responses:
         "200":
-          description: The updated user
+          description: Updated user
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+        "400":
+          description: Invalid input
+        "404":
+          description: User not found
       x-openapi-router-controller: swagger_server.controllers.default_controller
-  /users/{id}/likes:
+  /users/{user_id}/matches:
     get:
-      summary: Get all likes for a user
-      operationId: users_id_likes_get
+      summary: Retrieve a user's matches
+      description: Retrieve a list of all matches for the user with the given user
+        ID.
+      operationId: users_user_id_matches_get
       parameters:
-      - name: id
+      - name: user_id
         in: path
-        description: The ID of the user to retrieve likes for
+        description: ID of user to retrieve matches for
         required: true
         style: simple
         explode: false
         schema:
           type: integer
+          format: int64
       responses:
         "200":
-          description: A list of likes for the user
+          description: List of matches
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Like'
+                  $ref: '#/components/schemas/Match'
                 x-content-type: application/json
+        "404":
+          description: User not found
       x-openapi-router-controller: swagger_server.controllers.default_controller
     post:
-      summary: Add a like for a user
-      operationId: users_id_likes_post
+      summary: Create a new match
+      description: Create a new match between two users.
+      operationId: users_user_id_matches_post
       parameters:
-      - name: id
+      - name: user_id
         in: path
-        description: The ID of the user to add a like for
+        description: ID of user creating the match
         required: true
         style: simple
         explode: false
         schema:
           type: integer
+          format: int64
       requestBody:
+        description: Match data to be created.
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NewLike'
+              $ref: '#/components/schemas/MatchInput'
         required: true
       responses:
         "201":
-          description: The created like
+          description: Created match
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Like'
+                $ref: '#/components/schemas/Match'
+        "400":
+          description: Invalid input
+        "404":
+          description: User not found
       x-openapi-router-controller: swagger_server.controllers.default_controller
 components:
   schemas:
     User:
-      required:
-      - age
-      - email
-      - first_name
-      - gender
-      - id
-      - last_name
-      - location
       type: object
       properties:
         id:
           type: integer
-          example: 1
-        first_name:
+          format: int64
+        name:
           type: string
-          example: John
-        last_name:
-          type: string
-          example: Doe
         email:
           type: string
-          format: email
-          example: john.doe@example.com
+        password:
+          type: string
+        age:
+          type: integer
+          format: int32
         gender:
           type: string
-          example: male
           enum:
           - male
           - female
-        age:
-          type: integer
-          example: 25
+          - other
+        bio:
+          type: string
         location:
           $ref: '#/components/schemas/User_location'
       example:
+        password: password
         gender: male
-        last_name: Doe
+        name: name
+        bio: bio
         location:
-          latitude: 37.7749
-          longitude: -122.4194
-        id: 1
-        first_name: John
-        email: john.doe@example.com
-        age: 25
-    NewUser:
-      required:
-      - age
-      - email
-      - first_name
-      - gender
-      - last_name
-      - location
+          latitude: 1.4658129
+          longitude: 5.962134
+        id: 0
+        email: email
+        age: 6
+    UserInput:
       type: object
       properties:
-        first_name:
+        name:
           type: string
-          example: John
-        last_name:
-          type: string
-          example: Doe
         email:
           type: string
-          format: email
-          example: john.doe@example.com
+        password:
+          type: string
+        age:
+          type: integer
+          format: int32
         gender:
           type: string
-          example: male
           enum:
           - male
           - female
-        age:
-          type: integer
-          example: 25
+          - other
+        bio:
+          type: string
         location:
           $ref: '#/components/schemas/User_location'
-    Like:
-      required:
-      - liked_user_id
-      - user_id
+    Match:
       type: object
       properties:
+        id:
+          type: integer
+          format: int64
         user_id:
           type: integer
-          example: 1
-        liked_user_id:
+          format: int64
+        match_id:
           type: integer
-          example: 2
+          format: int64
+        match_score:
+          type: number
+          format: float
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
       example:
-        liked_user_id: 2
-        user_id: 1
-    NewLike:
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        user_id: 6
+        match_id: 1
+        created_at: 2000-01-23T04:56:07.000+00:00
+        match_score: 5.962134
+        id: 0
+    MatchInput:
       required:
-      - liked_user_id
+      - match_id
+      - match_score
       - user_id
       type: object
       properties:
         user_id:
           type: integer
-          description: The ID of the user who is performing the like action
-        liked_user_id:
+          format: int64
+        match_id:
           type: integer
-          description: The ID of the user being liked
+          format: int64
+        match_score:
+          type: number
+          format: float
     User_location:
       type: object
       properties:
         latitude:
           type: number
-          example: 37.7749
+          format: float
         longitude:
           type: number
-          example: -122.4194
+          format: float
       example:
-        latitude: 37.7749
-        longitude: -122.4194
-  responses:
-    SuccessResponse:
-      description: A successful response
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              success:
-                type: boolean
-                example: true
-  parameters:
-    UserIdParam:
-      name: user_id
-      in: path
-      description: The ID of the user
-      required: true
-      style: simple
-      explode: false
-      schema:
-        type: integer
-  requestBodies:
-    NewUserRequestBody:
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/NewUser'
-      required: true
+        latitude: 1.4658129
+        longitude: 5.962134
 

@@ -1,35 +1,55 @@
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
-  username VARCHAR(255) UNIQUE NOT NULL,
-  email VARCHAR(255) UNIQUE NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
-  gender VARCHAR(10) NOT NULL,
-  age INTEGER NOT NULL,
-  location VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  first_name VARCHAR(255),
+  last_name VARCHAR(255),
   bio TEXT,
-  profile_pic_url TEXT,
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+  gender VARCHAR(10),
+  birthdate DATE,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE likes (
+CREATE TABLE photos (
   id SERIAL PRIMARY KEY,
-  sender_id INTEGER REFERENCES users(id) NOT NULL,
-  receiver_id INTEGER REFERENCES users(id) NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW()
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  url VARCHAR(255) NOT NULL,
+  is_main BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE preferences (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  gender VARCHAR(10) NOT NULL,
+  min_age INTEGER NOT NULL,
+  max_age INTEGER NOT NULL,
+  distance INTEGER NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  UNIQUE(user_id)
+);
+
+CREATE TABLE swipes (
+  id SERIAL PRIMARY KEY,
+  swiper_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  swipee_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  is_like BOOLEAN NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  UNIQUE(swiper_id, swipee_id)
 );
 
 CREATE TABLE matches (
   id SERIAL PRIMARY KEY,
-  user1_id INTEGER REFERENCES users(id) NOT NULL,
-  user2_id INTEGER REFERENCES users(id) NOT NULL,
-  created_at TIMESTAMP DEFAULT NOW()
+  user1_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user2_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  UNIQUE(user1_id, user2_id)
 );
 
 CREATE TABLE messages (
   id SERIAL PRIMARY KEY,
-  sender_id INTEGER REFERENCES users(id) NOT NULL,
-  receiver_id INTEGER REFERENCES users(id) NOT NULL,
+  sender_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  recipient_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   message TEXT NOT NULL,
-  sent_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
